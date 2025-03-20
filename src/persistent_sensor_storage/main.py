@@ -12,6 +12,8 @@ app.include_router(nodes.router)
 app.include_router(sensors.router)
 
 # Simple health check endpoint for connectivity testing
+
+
 @app.get("/health")
 def health_check():
     return {"status": "OK"}

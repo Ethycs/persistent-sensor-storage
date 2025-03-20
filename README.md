@@ -1,37 +1,17 @@
 # persistent-sensor-storage
 Persistent sensor storage of coupled data in database via API
 
-This application is developed with the Pixi package tool, it is recommended to use this tool here: https://pixi.sh/latest/
-
-TODO: 
-    1. Setup API
-    2. Setup Database
-    3. Orchestrate Together
-
 Choices:
     a. Fastapi is a familiar technology that is more than sufficient for this task
     b. Uvicorn is a fast ASGI web server for Python
     c. SqlAlchemy
     d. sqlite and Postgresql as Test and Production databases
 
-
-From root folder
-pixi run uvicorn src.persistent_sensor_storage.main:app --host 0.0.0.0 --port 8000
-
-How to test:
-    1. Make sure Uvicorn is running
-    2. pixi run pytest
-
-How to standup prod ()
-    1. docker compose -f docker/docker-compose.yml up --build
-
 TODO:
 1. Reconcile issue between pip on container and pixi
-2. Work on the compose file working with a requirements.txt in a root file rather than docker
-3. Stress test testing code for database performance
+2. Stress test testing code for database performance
+3. Rewrite Application Async
 4. Double check on spec 
-
-
 
 This project implements a RESTful API using FastAPI to manage project nodes and sensors. The API provides endpoints to create, retrieve, update, and connect nodes and sensors. The project is containerized with Docker for production deployment and uses Pixi for development environment management and dependency resolution.
 
@@ -39,7 +19,10 @@ This project implements a RESTful API using FastAPI to manage project nodes and 
 Pixi – A fast, cross-platform package manager built atop the conda ecosystem.
 Docker (optional) – For containerized deployment.
 Git – To clone and manage the source code.
-Getting Started with Pixi
+
+## Getting Started with Pixi
+This application is developed with the Pixi package tool, it is recommended to use this tool here: https://pixi.sh/latest/
+For the purpose of this excercise, treat pixi like a replacement for Conda
 Pixi helps you set up reproducible development environments quickly. Follow these steps to get your environment ready:
 
 1. Install Pixi

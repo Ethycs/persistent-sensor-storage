@@ -6,3 +6,4 @@
 pixi.lock
  __pycache__/
 *.pyc
+test.db

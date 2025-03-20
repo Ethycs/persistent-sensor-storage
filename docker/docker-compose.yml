@@ -2,8 +2,8 @@ version: '3.8'
 services:
   web:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
     ports:
       - "8000:80"  # Host port 8000 mapped to container port 80
     environment:

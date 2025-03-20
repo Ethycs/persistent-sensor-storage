@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
-from ... import schemas, crud
+from .. import schemas, crud
 from ..dependencies import get_db
 
 router = APIRouter(prefix="/nodes", tags=["nodes"])

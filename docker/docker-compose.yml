@@ -7,7 +7,7 @@ services:
     ports:
       - "8000:80"  # Host port 8000 mapped to container port 80
     environment:
-      - DATABASE_URL=postgresql://user:pass@db:5432/aclima_db
+      - DATABASE_URL=postgresql://user:pass@db:5432/aclima_db #TODO add secrets integration
     depends_on:
       - db
   db:

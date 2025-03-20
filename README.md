@@ -57,13 +57,13 @@ pixi run pytest
 ```
 This will run your test suite using the environment that Pixi has created.
 
-Docker Deployment (Optional)
+## Docker Deployment (Optional)
 If you prefer a containerized setup, you can use Docker and Docker Compose:
 
 Build and start the containers:
 
 ```bash
-docker-compose up --build
+docker compose -f docker/docker-compose.yml up --build
 ```
 The API will be available at http://localhost:8000.
 

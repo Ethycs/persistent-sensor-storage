@@ -16,49 +16,14 @@ TODO:
 
 This project implements a RESTful API using FastAPI to manage project nodes and sensors. The API provides endpoints to create, retrieve, update, and connect nodes and sensors. The project is containerized with Docker for production deployment and uses Pixi for development environment management and dependency resolution.
 
+
+
 ## Prerequisites
 Pixi – A fast, cross-platform package manager built atop the conda ecosystem.
-Docker (optional) – For containerized deployment.
+Docker – For containerized deployment.
 Git – To clone and manage the source code.
 
-## Getting Started with Pixi
-This application is developed with the Pixi package tool, it is recommended to use this tool here: https://pixi.sh/latest/
-For the purpose of this excercise, treat pixi like a replacement for Conda
-Pixi helps you set up reproducible development environments quickly. Follow these steps to get your environment ready:
-
-1. Install Pixi
-If you haven’t installed Pixi yet, run the following command in your terminal:
-```bash
-curl -fsSL https://pixi.sh/install.sh | bash
-```
-This command downloads the latest Pixi binary, installs it (and updates your shell configuration), so you can run the pixi command from anywhere. You may need to restart your terminal or source your shell configuration file afterward.
-
-
-2. Install Project Dependencies
-Use Pixi to add all required dependencies. For example, run:
-
-```bash
-pixi install
-```
-Pixi will create an environment based on your manifest, generate a pixi.lock file for reproducibility, and cache all resolved packages.
-
-3. Running the API
-With your environment set up, you can run the FastAPI application using Pixi. For example:
-
-```bash
-pixi run uvicorn src.persistent_sensor_storage.main:app --host 0.0.0.0 --port 8000
-```
-This command launches Uvicorn to serve your FastAPI app from the Pixi-managed environment. <mark> The API will be available at http://localhost:8000, with interactive documentation at http://localhost:8000/docs.</mark> You can access the curl commands from /docs
-
-4. Running Tests
-To run the automated tests (located in the tests/ directory), execute:
-
-```bash
-pixi run pytest
-```
-This will run your test suite using the environment that Pixi has created.
-
-## Docker Deployment (Optional)
+## Docker Deployment
 If you prefer a containerized setup, you can use Docker and Docker Compose:
 
 Build and start the containers:
@@ -67,6 +32,25 @@ Build and start the containers:
 docker compose -f docker/docker-compose.yml up --build
 ```
 The API will be available at http://localhost:8000.
+
+
+
+1. Running the API outside of the container
+With your environment set up, you can run the FastAPI application using Pixi. For example:
+
+```bash
+pixi run uvicorn src.persistent_sensor_storage.main:app --host 0.0.0.0 --port 8000
+```
+This command launches Uvicorn to serve your FastAPI app from the Pixi-managed environment. <mark> The API will be available at http://localhost:8000, with interactive documentation at http://localhost:8000/docs.</mark> You can access the curl commands from /docs
+
+2. Running Tests
+To run the automated tests (located in the tests/ directory), execute:
+
+```bash
+pixi run pytest
+```
+This will run your test suite using the environment that Pixi has created.
+
 
 ### Project Structure
 ```bash
@@ -103,7 +87,7 @@ persistent_sensor_storage/
 ## API Documentation
 FastAPI automatically generates interactive documentation:
 
-Swagger UI: http://localhost:8000/docs
+OpenAPI UI: http://localhost:8000/docs
 ReDoc: http://localhost:8000/redoc
 
 

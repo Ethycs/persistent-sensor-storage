@@ -30,6 +30,7 @@ if SENTRY_DSN is not None:
             "continuous_profiling_auto_start": True,
         },
     )
+    sentry_sdk.profiler.start_profiler()    
 else:
     logging.warning("SENTRY_DSN not set, Sentry will not be initialized")
 
@@ -55,3 +56,4 @@ def health_check():
 
 logging.info("Logging is working: Starting application")
 asgi_app = SentryAsgiMiddleware(app)
+sentry_sdk.profiler.stop_profiler()

@@ -11,11 +11,11 @@ router = APIRouter(prefix="/nodes", tags=["nodes"])
 @router.get("/", response_model=List[schemas.Node])
 def read_nodes(
     serial_number: Optional[str] = Query(None),
-    offset: int = 0,
+    skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db)
 ):
-    nodes = crud.get_nodes(db, offset=offset, limit=limit,
+    nodes = crud.get_nodes(db, skip=skip, limit=limit,
                            serial_number=serial_number)
     return nodes
 
@@ -55,8 +55,8 @@ def partial_update_node(node_id: int, node_update: schemas.NodeUpdate, db: Sessi
 
 
 @router.post("/{node_id}/sensors", response_model=schemas.Sensor)
-def attach_sensor(node_id: int, sensor_id: int, db: Session = Depends(get_db)):
-    sensor = crud.attach_sensor_to_node(db, node_id, sensor_id)
+def attach_sensor(node_id: int, sensor_request: schemas.SensorAttachRequest, db: Session = Depends(get_db)):
+    sensor = crud.attach_sensor_to_node(db, node_id, sensor_request.sensor_id)
     if not sensor:
         raise HTTPException(status_code=404, detail="Node or Sensor not found")
     return sensor

@@ -19,6 +19,10 @@ class SensorUpdate(BaseModel):
     node_id: Optional[int] = None
 
 
+class SensorAttachRequest(BaseModel):
+    sensor_id: int
+
+
 class Sensor(SensorBase):
     id: int
     node_id: Optional[int]

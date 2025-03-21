@@ -49,7 +49,7 @@ def test_attach_sensor_to_node():
     sensor_id = sensor_response.json()["id"]
     
     # Then attach them
-    response = client.post(f"/nodes/{node_id}/sensors", params={"sensor_id": sensor_id})
+    response = client.post(f"/nodes/{node_id}/sensors", json={"sensor_id": sensor_id})
     assert response.status_code == 200
     data = response.json()
     assert data["node_id"] == node_id

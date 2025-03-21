@@ -5,6 +5,8 @@ from .config import SENTRY_DSN
 import sentry_sdk
 import logging
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
+from .kafka.consumers import node_consumer, sensor_consumer, readings_consumer
+import asyncio
 
 from sentry_sdk.integrations.logging import LoggingIntegration
 
@@ -46,11 +48,35 @@ logging.info("Logging is working: FastAPI app initialized")
 app.include_router(nodes.router)
 app.include_router(sensors.router)
 
+# Kafka consumer tasks
+consumer_tasks = []
+
+@app.on_event("startup")
+async def startup_event():
+    """Start Kafka consumers on application startup."""
+    loop = asyncio.get_event_loop()
+    consumer_tasks.extend([
+        loop.create_task(node_consumer.start()),
+        loop.create_task(sensor_consumer.start()),
+        loop.create_task(readings_consumer.start())
+    ])
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Stop Kafka consumers on application shutdown."""
+    for task in consumer_tasks:
+        task.cancel()
+    await asyncio.gather(*consumer_tasks, return_exceptions=True)
+    await node_consumer.stop()
+    await sensor_consumer.stop()
+    await readings_consumer.stop()
+
 # Simple health check endpoint for connectivity testing
 
 
 @app.get("/health")
 def health_check():
+    """Health check endpoint."""
     return {"status": "OK"}
 
 

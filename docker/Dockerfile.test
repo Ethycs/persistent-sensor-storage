@@ -2,9 +2,23 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
+# Install netcat for Kafka readiness check
+RUN apt-get update && \
+    apt-get install -y netcat-traditional && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
 COPY requirements.txt requirements-test.txt ./
 RUN pip install --no-cache-dir -r requirements-test.txt
 
+# Install additional test dependencies
+RUN pip install --no-cache-dir \
+    pytest-asyncio \
+    aiokafka \
+    pytest-timeout
+
+# Copy source code and tests
 COPY . .
 
+# Default command (can be overridden by docker-compose)
 CMD ["pytest", "-v"]

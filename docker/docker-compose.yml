@@ -7,11 +7,14 @@ services:
     ports:
       - "8000:80"  # Host port 8000 mapped to container port 80
     environment:
-      - DATABASE_URL=postgresql://user:pass@db:5432/aclima_db #TODO add secrets integration
-      - SENTRY_DSN=${SENTRY_DSN}
+      - DATABASE_URL=postgresql://user:pass@db:5432/aclima_db
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
     depends_on:
-      db:
-        condition: service_healthy
+      - db
+      - kafka
+    networks:
+      - app-network
+
   db:
     image: postgres:15-alpine
     restart: always
@@ -21,8 +24,84 @@ services:
       POSTGRES_DB: aclima_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      start_period: 1m
+    networks:
+      - app-network
+
+  test:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.test
+    environment:
+      - DATABASE_URL=postgresql://user:pass@db:5432/test_db
+      - API_BASE_URL=http://web:80
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - PYTEST_ADDOPTS="--asyncio-mode=auto"
+    volumes:
+      - ../tests:/app/tests
+    command: >
+      sh -c "
+        echo 'Waiting for Kafka...' &&
+        while ! nc -z kafka 29092; do sleep 1; done &&
+        echo 'Kafka is ready!' &&
+        pytest tests/kafka/ -v
+      "
+    depends_on:
+      - web
+      - db
+      - kafka
+    networks:
+      - app-network
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.1
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - app-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.1
+    hostname: kafka
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    networks:
+      - app-network
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+    depends_on:
+      - kafka
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
 volumes:
   postgres_data:

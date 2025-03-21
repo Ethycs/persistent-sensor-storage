@@ -4,3 +4,6 @@ sqlalchemy
 pydantic
 psycopg2-binary
 python-dotenv
+confluent-kafka
+aiokafka
+python-schema-registry-client

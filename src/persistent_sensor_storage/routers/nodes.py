@@ -4,6 +4,8 @@ from typing import List, Optional
 
 from .. import schemas, crud
 from ..dependencies import get_db
+from ..kafka.producers import producer
+from ..kafka.schemas import NodeEvent, EventType
 
 router = APIRouter(prefix="/nodes", tags=["nodes"])
 
@@ -33,7 +35,20 @@ def create_node(node: schemas.NodeCreate, db: Session = Depends(get_db)):
     db_node = crud.get_node_by_serial(db, serial_number=node.serial_number)
     if db_node:
         raise HTTPException(status_code=400, detail="Node already registered")
-    return crud.create_node(db=db, node=node)
+    
+    # Create node in database
+    new_node = crud.create_node(db=db, node=node)
+    
+    # Produce Kafka event
+    event = NodeEvent(
+        event_type=EventType.CREATED,
+        node_id=new_node.id,
+        serial_number=new_node.serial_number,
+        name=new_node.name
+    )
+    producer.produce_node_event(event)
+    
+    return new_node
 
 
 @router.put("/{node_id}", response_model=schemas.Node)
@@ -41,6 +56,16 @@ def update_node(node_id: int, node_update: schemas.NodeUpdate, db: Session = Dep
     db_node = crud.update_node(db, node_id, node_update)
     if not db_node:
         raise HTTPException(status_code=404, detail="Node not found")
+    
+    # Produce Kafka event
+    event = NodeEvent(
+        event_type=EventType.UPDATED,
+        node_id=db_node.id,
+        serial_number=db_node.serial_number,
+        name=db_node.name
+    )
+    producer.produce_node_event(event)
+    
     return db_node
 
 
@@ -59,4 +84,14 @@ def attach_sensor(node_id: int, sensor_request: schemas.SensorAttachRequest, db:
     sensor = crud.attach_sensor_to_node(db, node_id, sensor_request.sensor_id)
     if not sensor:
         raise HTTPException(status_code=404, detail="Node or Sensor not found")
+    
+    # Produce Kafka event
+    event = NodeEvent(
+        event_type=EventType.ATTACHED,
+        node_id=node_id,
+        serial_number=sensor.serial_number,
+        name=None
+    )
+    producer.produce_node_event(event)
+    
     return sensor

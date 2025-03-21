@@ -87,3 +87,18 @@ def attach_sensor_to_node(db: Session, node_id: int, sensor_id: int):
     db.commit()
     db.refresh(db_sensor)
     return db_sensor
+
+
+def assign_sensor_to_node(db: Session, sensor_id: int, node_id: int):
+    db_sensor = get_sensor(db, sensor_id=sensor_id)
+    if db_sensor is None:
+        return None
+
+    db_node = get_node(db, node_id=node_id)
+    if db_node is None:
+        return None
+
+    db_sensor.node_id = node_id
+    db.commit()
+    db.refresh(db_sensor)
+    return db_sensor

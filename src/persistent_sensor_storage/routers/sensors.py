@@ -55,3 +55,18 @@ def partial_update_sensor(sensor_id: int, sensor_update: schemas.SensorUpdate, d
     return db_sensor
 
 # Write a way to assign a sensor to a node
+
+
+@router.post("/{sensor_id}/assign/{node_id}", response_model=schemas.Sensor)
+def assign_sensor_to_node(sensor_id: int, node_id: int, db: Session = Depends(get_db)):
+    db_sensor = crud.get_sensor(db, sensor_id=sensor_id)
+    if not db_sensor:
+        raise HTTPException(status_code=404, detail="Sensor not found")
+
+    # check if node exists
+    db_node = crud.get_node(db, node_id=node_id)
+    if not db_node:
+        raise HTTPException(status_code=404, detail="Node not found")
+
+    db_sensor = crud.assign_sensor_to_node(db, sensor_id=sensor_id, node_id=node_id)
+    return db_sensor

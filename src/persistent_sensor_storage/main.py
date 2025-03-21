@@ -10,7 +10,7 @@ from sentry_sdk.integrations.logging import LoggingIntegration
 
 sentry_logging = LoggingIntegration(
     level=logging.INFO,         # Capture info and above as breadcrumbs
-    event_level=logging.INFO,  # Send regukar as events
+    event_level=logging.INFO,  # Send errors as events
 )
 
 if SENTRY_DSN is not None:

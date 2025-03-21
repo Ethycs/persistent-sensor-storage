@@ -53,3 +53,5 @@ def partial_update_sensor(sensor_id: int, sensor_update: schemas.SensorUpdate, d
     if not db_sensor:
         raise HTTPException(status_code=404, detail="Sensor not found")
     return db_sensor
+
+# Write a way to assign a sensor to a node

@@ -1,7 +1,7 @@
 import pytest
 import asyncio
 from aiokafka import AIOKafkaProducer, AIOKafkaConsumer
-from src.persistent_sensor_storage.kafka.config import get_kafka_config, TOPICS
+from ..src.persistent_sensor_storage.kafka.config import get_kafka_config, TOPICS
 
 
 @pytest.fixture(scope="session")

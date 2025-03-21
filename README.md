@@ -2,10 +2,11 @@
 Persistent sensor storage of coupled data in database via API
 
 Choices:
+
     a. Fastapi is a familiar technology that is more than sufficient for this task
     b. Uvicorn is a fast ASGI web server for Python
     c. SqlAlchemy
-    d. sqlite and Postgresql as Test and Production databases
+    d. Postgresql as Test and Production databases
 
 TODO:
 1. Reconcile issue between pip on container and pixi
@@ -34,7 +35,7 @@ docker compose -f docker/docker-compose.yml up --build
 The API will be available at http://localhost:8000.
 
 
-
+## Run locally
 1. Running the API outside of the container
 With your environment set up, you can run the FastAPI application using Pixi. For example:
 

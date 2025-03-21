@@ -47,9 +47,12 @@ class NodeUpdate(BaseModel):
     name: Optional[str] = None
 
 
-class Node(NodeBase):
+class NodeBasic(NodeBase):
     id: int
-    sensors: List[Sensor] = []   # List of attached sensors
 
     class Config:
         orm_mode = True
+
+
+class Node(NodeBasic):
+    sensors: List[Sensor] = []   # List of attached sensors

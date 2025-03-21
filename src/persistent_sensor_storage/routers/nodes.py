@@ -27,7 +27,7 @@ def read_nodes(
 
 
 @router.get("/{node_id}", response_model=schemas.NodeBasic)
-def read_node(node_id: int, db: Session = Depends(get_db)):
+def read_node(node_id: str, db: Session = Depends(get_db)):
     node = crud.get_node(db, node_id)
     if node is None:
         raise HTTPException(status_code=404, detail="Node not found")
@@ -52,7 +52,7 @@ def create_node(node: schemas.NodeCreate, db: Session = Depends(get_db)):
 
 @router.put("/{node_id}", response_model=schemas.NodeBasic)
 def update_node(
-    node_id: int,
+    node_id: str,
     node_update: schemas.NodeUpdate,
     db: Session = Depends(get_db)
 ):
@@ -65,7 +65,7 @@ def update_node(
 
 @router.patch("/{node_id}", response_model=schemas.NodeBasic)
 def partial_update_node(
-    node_id: int,
+    node_id: str,
     node_update: schemas.NodeUpdate,
     db: Session = Depends(get_db)
 ):
@@ -78,7 +78,7 @@ def partial_update_node(
 
 
 @router.get("/{node_id}/full", response_model=schemas.Node)
-def read_node_with_sensors(node_id: int, db: Session = Depends(get_db)):
+def read_node_with_sensors(node_id: str, db: Session = Depends(get_db)):
     """Get a node with its associated sensors."""
     node = crud.get_node(db, node_id)
     if node is None:
@@ -88,7 +88,7 @@ def read_node_with_sensors(node_id: int, db: Session = Depends(get_db)):
 
 @router.post("/{node_id}/sensors", response_model=schemas.Sensor)
 def attach_sensor(
-    node_id: int,
+    node_id: str,
     sensor_request: schemas.SensorAttachRequest,
     db: Session = Depends(get_db)
 ):

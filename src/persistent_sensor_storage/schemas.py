@@ -23,12 +23,12 @@ class SensorUpdate(BaseModel):
 
 
 class SensorAttachRequest(BaseModel):
-    sensor_id: int
+    sensor_id: str
 
 
 class Sensor(SensorBase):
-    id: int
-    node_id: Optional[int]
+    id: str
+    node_id: Optional[str]
 
     class Config:
         orm_mode = True
@@ -51,7 +51,7 @@ class NodeUpdate(BaseModel):
 
 
 class NodeBasic(NodeBase):
-    id: int
+    id: str
 
     class Config:
         orm_mode = True

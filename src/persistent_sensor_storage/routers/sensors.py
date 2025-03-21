@@ -13,7 +13,7 @@ def read_sensors(
     manufacturer: Optional[str] = Query(None),
     model: Optional[str] = Query(None),
     modality: Optional[str] = Query(None),
-    node_id: Optional[int] = Query(None),
+    node_id: Optional[str] = Query(None),
     offset: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db)
@@ -31,7 +31,7 @@ def read_sensors(
 
 
 @router.get("/{sensor_id}", response_model=schemas.Sensor)
-def read_sensor(sensor_id: int, db: Session = Depends(get_db)):
+def read_sensor(sensor_id: str, db: Session = Depends(get_db)):
     sensor = crud.get_sensor(db, sensor_id)
     if sensor is None:
         raise HTTPException(status_code=404, detail="Sensor not found")
@@ -61,7 +61,7 @@ def create_sensor(sensor: schemas.SensorCreate, db: Session = Depends(get_db)):
 
 @router.put("/{sensor_id}", response_model=schemas.Sensor)
 def update_sensor(
-    sensor_id: int,
+    sensor_id: str,
     sensor_update: schemas.SensorUpdate,
     db: Session = Depends(get_db)
 ):
@@ -73,7 +73,7 @@ def update_sensor(
 
 @router.patch("/{sensor_id}", response_model=schemas.Sensor)
 def partial_update_sensor(
-    sensor_id: int,
+    sensor_id: str,
     sensor_update: schemas.SensorUpdate,
     db: Session = Depends(get_db)
 ):
@@ -87,8 +87,8 @@ def partial_update_sensor(
 
 @router.post("/{sensor_id}/assign/{node_id}", response_model=schemas.Sensor)
 def assign_sensor_to_node(
-    sensor_id: int, 
-    node_id: int, 
+    sensor_id: str, 
+    node_id: str, 
     db: Session = Depends(get_db)
 ):
     db_sensor = crud.get_sensor(db, sensor_id=sensor_id)

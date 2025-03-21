@@ -4,7 +4,7 @@ from . import models, schemas
 # --- Node CRUD Operations ---
 
 
-def get_node(db: Session, node_id: int):
+def get_node(db: Session, node_id: str):
     return db.query(models.Node).filter(models.Node.id == node_id).first()
 
 
@@ -38,7 +38,7 @@ def create_node(db: Session, node: schemas.NodeCreate):
     return db_node
 
 
-def update_node(db: Session, node_id: int, node_update: schemas.NodeUpdate):
+def update_node(db: Session, node_id: str, node_update: schemas.NodeUpdate):
     db_node = get_node(db, node_id)
     if not db_node:
         return None
@@ -52,7 +52,7 @@ def update_node(db: Session, node_id: int, node_update: schemas.NodeUpdate):
 # --- Sensor CRUD Operations ---
 
 
-def get_sensor(db: Session, sensor_id: int):
+def get_sensor(db: Session, sensor_id: str):
     return db.query(models.Sensor).filter(models.Sensor.id == sensor_id).first()
 
 
@@ -67,7 +67,7 @@ def get_sensors(
     manufacturer: str = None,
     model: str = None,
     modality: str = None,
-    node_id: int = None
+    node_id: str = None
 ):
     query = db.query(models.Sensor)
     if manufacturer:
@@ -89,7 +89,7 @@ def create_sensor(db: Session, sensor: schemas.SensorCreate):
     return db_sensor
 
 
-def update_sensor(db: Session, sensor_id: int, sensor_update: schemas.SensorUpdate):
+def update_sensor(db: Session, sensor_id: str, sensor_update: schemas.SensorUpdate):
     db_sensor = get_sensor(db, sensor_id)
     if not db_sensor:
         return None
@@ -101,7 +101,7 @@ def update_sensor(db: Session, sensor_id: int, sensor_update: schemas.SensorUpda
     return db_sensor
 
 
-def attach_sensor_to_node(db: Session, node_id: int, sensor_id: int):
+def attach_sensor_to_node(db: Session, node_id: str, sensor_id: str):
     db_node = get_node(db, node_id)
     db_sensor = get_sensor(db, sensor_id)
     if not db_node or not db_sensor:
@@ -112,7 +112,7 @@ def attach_sensor_to_node(db: Session, node_id: int, sensor_id: int):
     return db_sensor
 
 
-def assign_sensor_to_node(db: Session, sensor_id: int, node_id: int):
+def assign_sensor_to_node(db: Session, sensor_id: str, node_id: str):
     db_sensor = get_sensor(db, sensor_id=sensor_id)
     if db_sensor is None:
         return None

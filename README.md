@@ -12,6 +12,7 @@ TODO:
 2. Stress test testing code for database performance
 3. Rewrite Application Async
 4. Double check on spec 
+5. Add curl commands to readme for full spec
 
 This project implements a RESTful API using FastAPI to manage project nodes and sensors. The API provides endpoints to create, retrieve, update, and connect nodes and sensors. The project is containerized with Docker for production deployment and uses Pixi for development environment management and dependency resolution.
 
@@ -47,7 +48,7 @@ With your environment set up, you can run the FastAPI application using Pixi. Fo
 ```bash
 pixi run uvicorn src.persistent_sensor_storage.main:app --host 0.0.0.0 --port 8000
 ```
-This command launches Uvicorn to serve your FastAPI app from the Pixi-managed environment. The API will be available at http://localhost:8000, with interactive documentation at http://localhost:8000/docs.
+This command launches Uvicorn to serve your FastAPI app from the Pixi-managed environment. <mark> The API will be available at http://localhost:8000, with interactive documentation at http://localhost:8000/docs.</mark> You can access the curl commands from /docs
 
 4. Running Tests
 To run the automated tests (located in the tests/ directory), execute:

@@ -12,12 +12,12 @@ router = APIRouter(prefix="/sensors", tags=["sensors"])
 def read_sensors(
     sensor_type: Optional[str] = Query(None),
     node_id: Optional[int] = Query(None),
-    skip: int = 0,
+    offset: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db)
 ):
     sensors = crud.get_sensors(
-        db, skip=skip, limit=limit, sensor_type=sensor_type, node_id=node_id)
+        db, offset=offset, limit=limit, sensor_type=sensor_type, node_id=node_id)
     return sensors
 
 

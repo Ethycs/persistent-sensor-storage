@@ -11,11 +11,11 @@ router = APIRouter(prefix="/nodes", tags=["nodes"])
 @router.get("/", response_model=List[schemas.Node])
 def read_nodes(
     serial_number: Optional[str] = Query(None),
-    skip: int = 0,
+    offset: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db)
 ):
-    nodes = crud.get_nodes(db, skip=skip, limit=limit,
+    nodes = crud.get_nodes(db, offset=offset, limit=limit,
                            serial_number=serial_number)
     return nodes
 

@@ -12,11 +12,11 @@ def get_node_by_serial(db: Session, serial_number: str):
     return db.query(models.Node).filter(models.Node.serial_number == serial_number).first()
 
 
-def get_nodes(db: Session, skip: int = 0, limit: int = 100, serial_number: str = None):
+def get_nodes(db: Session, offset: int = 0, limit: int = 100, serial_number: str = None):
     query = db.query(models.Node)
     if serial_number:
         query = query.filter(models.Node.serial_number == serial_number)
-    return query.offset(skip).limit(limit).all()
+    return query.offset(offset).limit(limit).all()
 
 
 def create_node(db: Session, node: schemas.NodeCreate):
@@ -49,13 +49,13 @@ def get_sensor_by_serial(db: Session, serial_number: str):
     return db.query(models.Sensor).filter(models.Sensor.serial_number == serial_number).first()
 
 
-def get_sensors(db: Session, skip: int = 0, limit: int = 100, sensor_type: str = None, node_id: int = None):
+def get_sensors(db: Session, offset: int = 0, limit: int = 100, sensor_type: str = None, node_id: int = None):
     query = db.query(models.Sensor)
     if sensor_type:
         query = query.filter(models.Sensor.type == sensor_type)
     if node_id is not None:
         query = query.filter(models.Sensor.node_id == node_id)
-    return query.offset(skip).limit(limit).all()
+    return query.offset(offset).limit(limit).all()
 
 
 def create_sensor(db: Session, sensor: schemas.SensorCreate):

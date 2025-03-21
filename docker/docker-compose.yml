@@ -9,7 +9,8 @@ services:
     environment:
       - DATABASE_URL=postgresql://user:pass@db:5432/aclima_db #TODO add secrets integration
     depends_on:
-      - db
+      db:
+        condition: service_healthy
   db:
     image: postgres:15-alpine
     restart: always
@@ -19,5 +20,8 @@ services:
       POSTGRES_DB: aclima_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      start_period: 1m
 volumes:
   postgres_data:

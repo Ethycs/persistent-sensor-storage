@@ -1,8 +1,7 @@
 from fastapi import FastAPI
-from .database import engine, Base
+from .database import ensure_database
 from .routers import nodes, sensors
 from .config import SENTRY_DSN
-from .init_db import engine as init_engine
 import sentry_sdk
 import logging
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
@@ -32,10 +31,8 @@ else:
 
 app = FastAPI(title="Aclima Nodes & Sensors API")
 
-# Create all database tables (for SQLite or initial setup)
-Base.metadata.drop_all(bind=engine)
-Base.metadata.create_all(bind=engine)
-Base.metadata.create_all(bind=init_engine)
+# Ensure database tables exist (safe for production)
+ensure_database()
 
 logging.info("Logging is working: FastAPI app initialized")
 

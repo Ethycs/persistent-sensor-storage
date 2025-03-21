@@ -1,18 +1,10 @@
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from src.persistent_sensor_storage.database import Base
+from src.persistent_sensor_storage.database import engine, reset_database
 from src.persistent_sensor_storage.main import app
 from src.persistent_sensor_storage.dependencies import get_db
 
-# Use an in-memory SQLite database for testing
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
-
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
-    connect_args={"check_same_thread": False}
-)
 TestingSessionLocal = sessionmaker(
     autocommit=False,
     autoflush=False,
@@ -22,9 +14,8 @@ TestingSessionLocal = sessionmaker(
 
 @pytest.fixture(scope="function")
 def db():
-    # Create the database tables
-    Base.metadata.drop_all(bind=engine)
-    Base.metadata.create_all(bind=engine)
+    # Reset database to clean state before each test
+    reset_database()
 
     # Create a new session for the test
     db = TestingSessionLocal()

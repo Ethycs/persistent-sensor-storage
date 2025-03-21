@@ -10,14 +10,23 @@ router = APIRouter(prefix="/sensors", tags=["sensors"])
 
 @router.get("/", response_model=List[schemas.Sensor])
 def read_sensors(
-    sensor_type: Optional[str] = Query(None),
+    manufacturer: Optional[str] = Query(None),
+    model: Optional[str] = Query(None),
+    modality: Optional[str] = Query(None),
     node_id: Optional[int] = Query(None),
     offset: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db)
 ):
     sensors = crud.get_sensors(
-        db, offset=offset, limit=limit, sensor_type=sensor_type, node_id=node_id)
+        db, 
+        offset=offset, 
+        limit=limit, 
+        manufacturer=manufacturer, 
+        model=model,
+        modality=modality, 
+        node_id=node_id
+    )
     return sensors
 
 
@@ -31,16 +40,31 @@ def read_sensor(sensor_id: int, db: Session = Depends(get_db)):
 
 @router.post("/", response_model=schemas.Sensor, status_code=201)
 def create_sensor(sensor: schemas.SensorCreate, db: Session = Depends(get_db)):
-    db_sensor = crud.get_sensor_by_serial(
-        db, serial_number=sensor.serial_number)
+    db_sensor = crud.get_sensor_by_serial(db, serial_number=sensor.serial_number)
     if db_sensor:
+        raise HTTPException(status_code=400, detail="Sensor already registered")
+    
+    # Validate required fields
+    required_fields = [
+        sensor.manufacturer,
+        sensor.model,
+        sensor.modality
+    ]
+    if not all(required_fields):
         raise HTTPException(
-            status_code=400, detail="Sensor already registered")
+            status_code=400,
+            detail="Manufacturer, model, and modality are required"
+        )
+    
     return crud.create_sensor(db=db, sensor=sensor)
 
 
 @router.put("/{sensor_id}", response_model=schemas.Sensor)
-def update_sensor(sensor_id: int, sensor_update: schemas.SensorUpdate, db: Session = Depends(get_db)):
+def update_sensor(
+    sensor_id: int,
+    sensor_update: schemas.SensorUpdate,
+    db: Session = Depends(get_db)
+):
     db_sensor = crud.update_sensor(db, sensor_id, sensor_update)
     if not db_sensor:
         raise HTTPException(status_code=404, detail="Sensor not found")
@@ -48,7 +72,11 @@ def update_sensor(sensor_id: int, sensor_update: schemas.SensorUpdate, db: Sessi
 
 
 @router.patch("/{sensor_id}", response_model=schemas.Sensor)
-def partial_update_sensor(sensor_id: int, sensor_update: schemas.SensorUpdate, db: Session = Depends(get_db)):
+def partial_update_sensor(
+    sensor_id: int,
+    sensor_update: schemas.SensorUpdate,
+    db: Session = Depends(get_db)
+):
     db_sensor = crud.update_sensor(db, sensor_id, sensor_update)
     if not db_sensor:
         raise HTTPException(status_code=404, detail="Sensor not found")
@@ -58,7 +86,11 @@ def partial_update_sensor(sensor_id: int, sensor_update: schemas.SensorUpdate, d
 
 
 @router.post("/{sensor_id}/assign/{node_id}", response_model=schemas.Sensor)
-def assign_sensor_to_node(sensor_id: int, node_id: int, db: Session = Depends(get_db)):
+def assign_sensor_to_node(
+    sensor_id: int, 
+    node_id: int, 
+    db: Session = Depends(get_db)
+):
     db_sensor = crud.get_sensor(db, sensor_id=sensor_id)
     if not db_sensor:
         raise HTTPException(status_code=404, detail="Sensor not found")

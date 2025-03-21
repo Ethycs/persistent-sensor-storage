@@ -6,17 +6,20 @@ from typing import Optional, List
 
 class SensorBase(BaseModel):
     serial_number: str
-    type: str
+    manufacturer: str
+    model: str
+    modality: str
 
 
 class SensorCreate(SensorBase):
-    node_id: Optional[int] = None
+    pass
 
 
 class SensorUpdate(BaseModel):
     serial_number: Optional[str] = None
-    type: Optional[str] = None
-    node_id: Optional[int] = None
+    manufacturer: Optional[str] = None
+    model: Optional[str] = None
+    modality: Optional[str] = None
 
 
 class SensorAttachRequest(BaseModel):
@@ -35,7 +38,7 @@ class Sensor(SensorBase):
 
 class NodeBase(BaseModel):
     serial_number: str
-    name: Optional[str] = None
+    firmware_version: str
 
 
 class NodeCreate(NodeBase):
@@ -44,7 +47,7 @@ class NodeCreate(NodeBase):
 
 class NodeUpdate(BaseModel):
     serial_number: Optional[str] = None
-    name: Optional[str] = None
+    firmware_version: Optional[str] = None
 
 
 class NodeBasic(NodeBase):

@@ -11,12 +11,18 @@ router = APIRouter(prefix="/nodes", tags=["nodes"])
 @router.get("/", response_model=List[schemas.NodeBasic])
 def read_nodes(
     serial_number: Optional[str] = Query(None),
+    firmware_version: Optional[str] = Query(None),
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db)
 ):
-    nodes = crud.get_nodes(db, skip=skip, limit=limit,
-                           serial_number=serial_number)
+    nodes = crud.get_nodes(
+        db,
+        skip=skip,
+        limit=limit,
+        serial_number=serial_number,
+        firmware_version=firmware_version
+    )
     return nodes
 
 
@@ -30,10 +36,17 @@ def read_node(node_id: int, db: Session = Depends(get_db)):
 
 @router.post("/", response_model=schemas.NodeBasic, status_code=201)
 def create_node(node: schemas.NodeCreate, db: Session = Depends(get_db)):
-    db_node = crud.get_node_by_serial(
-        db, serial_number=node.serial_number)
+    db_node = crud.get_node_by_serial(db, serial_number=node.serial_number)
     if db_node:
         raise HTTPException(status_code=400, detail="Node already registered")
+    
+    # Validate required fields
+    if not node.firmware_version:
+        raise HTTPException(
+            status_code=400,
+            detail="Firmware version is required"
+        )
+    
     return crud.create_node(db=db, node=node)
 
 

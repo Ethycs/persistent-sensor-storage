@@ -19,21 +19,26 @@ class Node(Base):
     __tablename__ = "nodes"
     id = Column(Integer, primary_key=True, index=True)
     serial_number = Column(String, unique=True, index=True)
-    name = Column(String, nullable=True)
+    firmware_version = Column(String, nullable=False)
 
     # One-to-many relationship to NodeSensorAssociation
     associations = relationship("NodeSensorAssociation", back_populates="node")
 
     # Many-to-many relationship using the rich association table
     sensors = relationship(
-        "Sensor", secondary=NodeSensorAssociation.__table__, back_populates="nodes")
+        "Sensor", 
+        secondary=NodeSensorAssociation.__table__, 
+        back_populates="nodes"
+    )
 
 
 class Sensor(Base):
     __tablename__ = "sensors"
     id = Column(Integer, primary_key=True, index=True)
     serial_number = Column(String, unique=True, index=True)
-    type = Column(String, nullable=False)
+    manufacturer = Column(String, nullable=False)
+    model = Column(String, nullable=False)
+    modality = Column(String, nullable=False)
 
     # One-to-many relationship to NodeSensorAssociation
     associations = relationship(
@@ -41,4 +46,7 @@ class Sensor(Base):
 
     # Define relationship to nodes through the association table
     nodes = relationship(
-        "Node", secondary=NodeSensorAssociation.__table__, back_populates="sensors")
+        "Node", 
+        secondary=NodeSensorAssociation.__table__, 
+        back_populates="sensors"
+    )

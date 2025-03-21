@@ -1,16 +1,17 @@
-from fastapi.testclient import TestClient
-from src.persistent_sensor_storage.main import app
-import os
-
-# Use the API_BASE_URL environment variable if set, otherwise use the default
-base_url = os.getenv("API_BASE_URL", "http://localhost:8000")
-client = TestClient(app, base_url=base_url)
+import pytest
 
 
-def test_create_and_get_sensor():
+@pytest.mark.integration
+def test_create_and_get_sensor(client):
     # Create a new sensor
     response = client.post(
-        "/sensors", json={"serial_number": "SENSOR001", "type": "temperature"})
+        "/sensors",
+        json={
+            "serial_number": "SENSOR001",
+            "manufacturer": "Test Mfg",
+            "model": "TempSensor",
+            "modality": "temperature"
+        })
     assert response.status_code == 201
     sensor = response.json()
     sensor_id = sensor["id"]
@@ -20,20 +21,72 @@ def test_create_and_get_sensor():
     assert response.status_code == 200
     data = response.json()
     assert data["serial_number"] == "SENSOR001"
-    assert data["type"] == "temperature"
+    assert data["manufacturer"] == "Test Mfg"
+    assert data["model"] == "TempSensor"
+    assert data["modality"] == "temperature"
 
 
-def test_list_sensors():
+@pytest.mark.integration
+def test_list_sensors(client):
     # Test GET /sensors/
     response = client.get("/sensors/")
     assert response.status_code == 200
     assert isinstance(response.json(), list)
 
 
-def test_get_sensor_by_serial():
-    # Test GET /sensors/?serial_number=SENSOR001
-    response = client.get("/sensors/?serial_number=SENSOR001")
+@pytest.mark.integration
+def test_get_sensor_by_manufacturer(client):
+    # Test GET /sensors/?manufacturer=Test Mfg
+    response = client.get("/sensors/?manufacturer=Test Mfg")
     assert response.status_code == 200
     data = response.json()
     assert len(data) > 0
-    assert data[0]["serial_number"] == "SENSOR001"
+    assert data[0]["manufacturer"] == "Test Mfg"
+
+
+@pytest.mark.integration
+def test_get_sensor_by_model(client):
+    # Test GET /sensors/?model=TempSensor
+    response = client.get("/sensors/?model=TempSensor")
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) > 0
+    assert data[0]["model"] == "TempSensor"
+
+
+@pytest.mark.integration
+def test_get_sensor_by_modality(client):
+    # Test GET /sensors/?modality=temperature
+    response = client.get("/sensors/?modality=temperature")
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) > 0
+    assert data[0]["modality"] == "temperature"
+
+
+@pytest.mark.integration
+def test_update_sensor(client):
+    # Create a sensor first
+    response = client.post(
+        "/sensors",
+        json={
+            "serial_number": "SENSOR002",
+            "manufacturer": "Old Mfg",
+            "model": "OldModel",
+            "modality": "humidity"
+        })
+    sensor_id = response.json()["id"]
+
+    # Update the sensor
+    response = client.put(
+        f"/sensors/{sensor_id}",
+        json={
+            "manufacturer": "New Mfg",
+            "model": "NewModel",
+            "modality": "temperature"
+        })
+    assert response.status_code == 200
+    data = response.json()
+    assert data["manufacturer"] == "New Mfg"
+    assert data["model"] == "NewModel"
+    assert data["modality"] == "temperature"

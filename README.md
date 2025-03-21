@@ -34,6 +34,10 @@ docker compose -f docker/docker-compose.yml up --build
 ```
 The API will be available at http://localhost:8000.
 
+To take down:
+```bash
+docker compose -f docker/docker-compose.yml down
+```
 
 ## Run locally
 1. Running the API outside of the container

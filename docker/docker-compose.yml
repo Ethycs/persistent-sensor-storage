@@ -21,8 +21,11 @@ services:
       POSTGRES_DB: aclima_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+    healthcheck:  
+      test: ["CMD-SHELL", "PGPASSWORD=pass pg_isready -U user -d aclima_db -h localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
       start_period: 1m
 volumes:
   postgres_data:

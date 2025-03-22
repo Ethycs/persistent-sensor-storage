@@ -6,7 +6,12 @@ import uuid
 
 class NodeSensorAssociation(Base):
     __tablename__ = "node_sensor_association"
-    id = Column(String, primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
+    id = Column(
+        String,
+        primary_key=True,
+        index=True,
+        default=lambda: str(uuid.uuid4())
+    )
     node_id = Column(String, ForeignKey('nodes.id'))
     sensor_id = Column(String, ForeignKey('sensors.id'))
     status = Column(String)
@@ -18,8 +23,13 @@ class NodeSensorAssociation(Base):
 
 class Node(Base):
     __tablename__ = "nodes"
-    id = Column(String, primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
-    serial_number = Column(String, unique=True, index=True)
+    id = Column(
+        String,
+        primary_key=True,
+        index=True,
+        default=lambda: str(uuid.uuid4())
+    )
+    serial_number = Column(String, unique=True, index=True, nullable=True)
     firmware_version = Column(String, nullable=False)
 
     # One-to-many relationship to NodeSensorAssociation
@@ -35,8 +45,13 @@ class Node(Base):
 
 class Sensor(Base):
     __tablename__ = "sensors"
-    id = Column(String, primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
-    serial_number = Column(String, unique=True, index=True)
+    id = Column(
+        String,
+        primary_key=True,
+        index=True,
+        default=lambda: str(uuid.uuid4())
+    )
+    serial_number = Column(String, unique=True, index=True, nullable=True)
     manufacturer = Column(String, nullable=False)
     model = Column(String, nullable=False)
     modality = Column(String, nullable=False)

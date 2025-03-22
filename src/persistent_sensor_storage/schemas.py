@@ -5,7 +5,7 @@ from typing import Optional, List
 
 
 class SensorBase(BaseModel):
-    serial_number: str
+    serial_number: Optional[str] = None
     manufacturer: str
     model: str
     modality: str
@@ -37,7 +37,7 @@ class Sensor(SensorBase):
 
 
 class NodeBase(BaseModel):
-    serial_number: str
+    serial_number: Optional[str] = None
     firmware_version: str
 
 

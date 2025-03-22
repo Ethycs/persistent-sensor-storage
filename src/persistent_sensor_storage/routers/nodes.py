@@ -13,7 +13,7 @@ def read_nodes(
     serial_number: Optional[str] = Query(None),
     firmware_version: Optional[str] = Query(None),
     skip: int = 0,
-    limit: int = 100,
+    limit: Optional[int] = Query(None),
     db: Session = Depends(get_db)
 ):
     nodes = crud.get_nodes(
@@ -36,9 +36,16 @@ def read_node(node_id: str, db: Session = Depends(get_db)):
 
 @router.post("/", response_model=schemas.NodeBasic, status_code=201)
 def create_node(node: schemas.NodeCreate, db: Session = Depends(get_db)):
-    db_node = crud.get_node_by_serial(db, serial_number=node.serial_number)
-    if db_node:
-        raise HTTPException(status_code=400, detail="Node already registered")
+    # Only check for duplicate serial if one is provided
+    if node.serial_number:
+        db_node = crud.get_node_by_serial(
+            db, serial_number=node.serial_number
+        )
+        if db_node:
+            raise HTTPException(
+                status_code=400,
+                detail="Node already registered"
+            )
     
     # Validate required fields
     if not node.firmware_version:
@@ -74,8 +81,6 @@ def partial_update_node(
         raise HTTPException(status_code=404, detail="Node not found")
     return db_node
 
-# Additional endpoints for node-sensor operations
-
 
 @router.get("/{node_id}/full", response_model=schemas.Node)
 def read_node_with_sensors(node_id: str, db: Session = Depends(get_db)):
@@ -92,7 +97,12 @@ def attach_sensor(
     sensor_request: schemas.SensorAttachRequest,
     db: Session = Depends(get_db)
 ):
-    sensor = crud.attach_sensor_to_node(db, node_id, sensor_request.sensor_id)
+    sensor = crud.attach_sensor_to_node(
+        db, node_id, sensor_request.sensor_id
+    )
     if not sensor:
-        raise HTTPException(status_code=404, detail="Node or Sensor not found")
+        raise HTTPException(
+            status_code=404,
+            detail="Node or Sensor not found"
+        )
     return sensor

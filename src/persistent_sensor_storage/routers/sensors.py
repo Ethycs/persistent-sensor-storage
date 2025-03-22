@@ -14,17 +14,17 @@ def read_sensors(
     model: Optional[str] = Query(None),
     modality: Optional[str] = Query(None),
     node_id: Optional[str] = Query(None),
-    offset: int = 0,
-    limit: int = 100,
+    skip: int = 0,
+    limit: Optional[int] = Query(None),
     db: Session = Depends(get_db)
 ):
     sensors = crud.get_sensors(
-        db, 
-        offset=offset, 
-        limit=limit, 
-        manufacturer=manufacturer, 
+        db,
+        offset=skip,
+        limit=limit,
+        manufacturer=manufacturer,
         model=model,
-        modality=modality, 
+        modality=modality,
         node_id=node_id
     )
     return sensors
@@ -40,17 +40,19 @@ def read_sensor(sensor_id: str, db: Session = Depends(get_db)):
 
 @router.post("/", response_model=schemas.Sensor, status_code=201)
 def create_sensor(sensor: schemas.SensorCreate, db: Session = Depends(get_db)):
-    db_sensor = crud.get_sensor_by_serial(db, serial_number=sensor.serial_number)
-    if db_sensor:
-        raise HTTPException(status_code=400, detail="Sensor already registered")
+    # Only check for duplicate serial if one is provided
+    if sensor.serial_number:
+        db_sensor = crud.get_sensor_by_serial(
+            db, serial_number=sensor.serial_number
+        )
+        if db_sensor:
+            raise HTTPException(
+                status_code=400,
+                detail="Sensor already registered"
+            )
     
     # Validate required fields
-    required_fields = [
-        sensor.manufacturer,
-        sensor.model,
-        sensor.modality
-    ]
-    if not all(required_fields):
+    if not all([sensor.manufacturer, sensor.model, sensor.modality]):
         raise HTTPException(
             status_code=400,
             detail="Manufacturer, model, and modality are required"
@@ -80,25 +82,4 @@ def partial_update_sensor(
     db_sensor = crud.update_sensor(db, sensor_id, sensor_update)
     if not db_sensor:
         raise HTTPException(status_code=404, detail="Sensor not found")
-    return db_sensor
-
-# Write a way to assign a sensor to a node
-
-
-@router.post("/{sensor_id}/assign/{node_id}", response_model=schemas.Sensor)
-def assign_sensor_to_node(
-    sensor_id: str, 
-    node_id: str, 
-    db: Session = Depends(get_db)
-):
-    db_sensor = crud.get_sensor(db, sensor_id=sensor_id)
-    if not db_sensor:
-        raise HTTPException(status_code=404, detail="Sensor not found")
-
-    # check if node exists
-    db_node = crud.get_node(db, node_id=node_id)
-    if not db_node:
-        raise HTTPException(status_code=404, detail="Node not found")
-
-    db_sensor = crud.assign_sensor_to_node(db, sensor_id=sensor_id, node_id=node_id)
     return db_sensor

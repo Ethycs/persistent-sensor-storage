@@ -41,7 +41,8 @@ class Node(Base):
     sensors = relationship(
         "Sensor", 
         secondary=NodeSensorAssociation.__table__, 
-        back_populates="nodes"
+        back_populates="nodes",
+        overlaps="associations,node"
     )
 
 
@@ -62,11 +63,15 @@ class Sensor(Base):
 
     # One-to-many relationship to NodeSensorAssociation
     associations = relationship(
-        "NodeSensorAssociation", back_populates="sensor")
+        "NodeSensorAssociation", 
+        back_populates="sensor",
+        overlaps="sensors"
+    )
 
     # Define relationship to nodes through the association table
     nodes = relationship(
         "Node", 
         secondary=NodeSensorAssociation.__table__, 
-        back_populates="sensors"
+        back_populates="sensors",
+        overlaps="associations,node"
     )

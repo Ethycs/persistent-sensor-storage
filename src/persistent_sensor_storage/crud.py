@@ -44,7 +44,7 @@ def get_nodes(
 
 def create_node(db: Session, node: schemas.NodeCreate):
     # Use provided ID or generate UUID
-    node_data = node.dict()
+    node_data = node.model_dump()
     if not node_data.get('id'):
         node_data['id'] = str(uuid.uuid4())
     
@@ -59,7 +59,7 @@ def update_node(db: Session, node_id: str, node_update: schemas.NodeUpdate):
     db_node = get_node(db, node_id)
     if not db_node:
         return None
-    update_data = node_update.dict(exclude_unset=True)
+    update_data = node_update.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(db_node, key, value)
     db.commit()
@@ -110,7 +110,7 @@ def get_sensors(
 
 def create_sensor(db: Session, sensor: schemas.SensorCreate):
     # Use provided ID or generate UUID
-    sensor_data = sensor.dict()
+    sensor_data = sensor.model_dump()
     if not sensor_data.get('id'):
         sensor_data['id'] = str(uuid.uuid4())
     
@@ -129,7 +129,7 @@ def update_sensor(
     db_sensor = get_sensor(db, sensor_id)
     if not db_sensor:
         return None
-    update_data = sensor_update.dict(exclude_unset=True)
+    update_data = sensor_update.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(db_sensor, key, value)
     db.commit()

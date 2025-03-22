@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, List
 from uuid import uuid4
 
@@ -8,8 +8,7 @@ from uuid import uuid4
 class EntityBase(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid4()))
 
-    class Config:
-        validate_default = True
+    model_config = ConfigDict(validate_default=True)
 
 
 # --- Sensor Schemas ---
@@ -40,8 +39,7 @@ class SensorAttachRequest(BaseModel):
 class SensorResponse(SensorBase):
     node_id: Optional[str] = None
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # --- Node Schemas ---
@@ -62,8 +60,7 @@ class NodeUpdate(BaseModel):
 
 
 class NodeResponse(NodeBase):
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class Node(NodeResponse):

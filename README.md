@@ -8,13 +8,6 @@ Choices:
     c. SqlAlchemy
     d. Postgresql as Test and Production databases
 
-TODO:
-1. Reconcile issue between pip on container and pixi
-2. Stress test testing code for database performance
-3. Rewrite Application Async
-4. Double check on spec 
-5. Add curl commands to readme for full spec
-
 This project implements a RESTful API using FastAPI to manage project nodes and sensors. The API provides endpoints to create, retrieve, update, and connect nodes and sensors. The project is containerized with Docker for production deployment and uses Pixi for development environment management and dependency resolution.
 
 

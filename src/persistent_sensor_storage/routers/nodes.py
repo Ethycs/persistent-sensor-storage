@@ -47,13 +47,6 @@ def create_node(node: schemas.NodeCreate, db: Session = Depends(get_db)):
                 detail="Node already registered"
             )
     
-    # Validate required fields
-    if not node.firmware_version:
-        raise HTTPException(
-            status_code=400,
-            detail="Firmware version is required"
-        )
-    
     return crud.create_node(db=db, node=node)
 
 

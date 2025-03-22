@@ -143,14 +143,22 @@ def attach_sensor_to_node(db: Session, node_id: str, sensor_id: str):
     if not db_node or not db_sensor:
         return None
     
+    # Set the node_id on the sensor
+    db_sensor.node_id = node_id
+    
     # Create association with UUID
     association = models.NodeSensorAssociation(
         id=str(uuid.uuid4()),
         node_id=node_id,
         sensor_id=sensor_id
     )
+    
+    # Add association and commit
     db.add(association)
     db.commit()
+    
+    # Refresh both objects to ensure relationships are loaded
+    db.refresh(db_node)
     db.refresh(db_sensor)
     return db_sensor
 

@@ -58,6 +58,7 @@ class Sensor(Base):
     manufacturer = Column(String, nullable=False)
     model = Column(String, nullable=False)
     modality = Column(String, nullable=False)
+    node_id = Column(String, ForeignKey('nodes.id'), nullable=True)
 
     # One-to-many relationship to NodeSensorAssociation
     associations = relationship(

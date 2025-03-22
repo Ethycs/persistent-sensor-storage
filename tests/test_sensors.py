@@ -67,6 +67,17 @@ def test_get_sensor_by_manufacturer(client):
 
 @pytest.mark.integration
 def test_get_sensor_by_model(client):
+    # Create test sensor first
+    create_response = client.post(
+        "/sensors",
+        json={
+            "serial_number": "TEST123",
+            "manufacturer": "Test Mfg",
+            "model": "TempSensor",
+            "modality": "temperature"
+        })
+    assert create_response.status_code == 201
+    
     # Test GET /sensors/?model=TempSensor
     response = client.get("/sensors/?model=TempSensor")
     assert response.status_code == 200
@@ -78,6 +89,17 @@ def test_get_sensor_by_model(client):
 
 @pytest.mark.integration
 def test_get_sensor_by_modality(client):
+    # Create test sensor first
+    create_response = client.post(
+        "/sensors",
+        json={
+            "serial_number": "TEST456",
+            "manufacturer": "Test Mfg",
+            "model": "TempSensor",
+            "modality": "temperature"
+        })
+    assert create_response.status_code == 201
+    
     # Test GET /sensors/?modality=temperature
     response = client.get("/sensors/?modality=temperature")
     assert response.status_code == 200

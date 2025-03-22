@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from typing import Optional
 from . import models, schemas
+import uuid
 
 # --- Node CRUD Operations ---
 
@@ -42,7 +43,12 @@ def get_nodes(
 
 
 def create_node(db: Session, node: schemas.NodeCreate):
-    db_node = models.Node(**node.dict())
+    # Use provided ID or generate UUID
+    node_data = node.dict()
+    if not node_data.get('id'):
+        node_data['id'] = str(uuid.uuid4())
+    
+    db_node = models.Node(**node_data)
     db.add(db_node)
     db.commit()
     db.refresh(db_node)
@@ -103,7 +109,12 @@ def get_sensors(
 
 
 def create_sensor(db: Session, sensor: schemas.SensorCreate):
-    db_sensor = models.Sensor(**sensor.dict())
+    # Use provided ID or generate UUID
+    sensor_data = sensor.dict()
+    if not sensor_data.get('id'):
+        sensor_data['id'] = str(uuid.uuid4())
+    
+    db_sensor = models.Sensor(**sensor_data)
     db.add(db_sensor)
     db.commit()
     db.refresh(db_sensor)
@@ -131,7 +142,14 @@ def attach_sensor_to_node(db: Session, node_id: str, sensor_id: str):
     db_sensor = get_sensor(db, sensor_id)
     if not db_node or not db_sensor:
         return None
-    db_sensor.node_id = node_id
+    
+    # Create association with UUID
+    association = models.NodeSensorAssociation(
+        id=str(uuid.uuid4()),
+        node_id=node_id,
+        sensor_id=sensor_id
+    )
+    db.add(association)
     db.commit()
     db.refresh(db_sensor)
     return db_sensor
@@ -146,7 +164,13 @@ def assign_sensor_to_node(db: Session, sensor_id: str, node_id: str):
     if db_node is None:
         return None
 
-    db_sensor.node_id = node_id
+    # Create association with UUID
+    association = models.NodeSensorAssociation(
+        id=str(uuid.uuid4()),
+        node_id=node_id,
+        sensor_id=sensor_id
+    )
+    db.add(association)
     db.commit()
     db.refresh(db_sensor)
     return db_sensor

@@ -10,10 +10,11 @@ class NodeSensorAssociation(Base):
         String,
         primary_key=True,
         index=True,
+        nullable=False,
         default=lambda: str(uuid.uuid4())
     )
-    node_id = Column(String, ForeignKey('nodes.id'))
-    sensor_id = Column(String, ForeignKey('sensors.id'))
+    node_id = Column(String, ForeignKey('nodes.id'), nullable=False)
+    sensor_id = Column(String, ForeignKey('sensors.id'), nullable=False)
     status = Column(String)
 
     # Define relationships
@@ -27,6 +28,7 @@ class Node(Base):
         String,
         primary_key=True,
         index=True,
+        nullable=False,
         default=lambda: str(uuid.uuid4())
     )
     serial_number = Column(String, unique=True, index=True, nullable=True)
@@ -49,6 +51,7 @@ class Sensor(Base):
         String,
         primary_key=True,
         index=True,
+        nullable=False,
         default=lambda: str(uuid.uuid4())
     )
     serial_number = Column(String, unique=True, index=True, nullable=True)

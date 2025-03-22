@@ -8,7 +8,7 @@ from ..dependencies import get_db
 router = APIRouter(prefix="/sensors", tags=["sensors"])
 
 
-@router.get("/", response_model=List[schemas.Sensor])
+@router.get("/", response_model=List[schemas.SensorResponse])
 def read_sensors(
     manufacturer: Optional[str] = Query(None),
     model: Optional[str] = Query(None),
@@ -30,7 +30,7 @@ def read_sensors(
     return sensors
 
 
-@router.get("/{sensor_id}", response_model=schemas.Sensor)
+@router.get("/{sensor_id}", response_model=schemas.SensorResponse)
 def read_sensor(sensor_id: str, db: Session = Depends(get_db)):
     sensor = crud.get_sensor(db, sensor_id)
     if sensor is None:
@@ -38,7 +38,7 @@ def read_sensor(sensor_id: str, db: Session = Depends(get_db)):
     return sensor
 
 
-@router.post("/", response_model=schemas.Sensor, status_code=201)
+@router.post("/", response_model=schemas.SensorResponse, status_code=201)
 def create_sensor(sensor: schemas.SensorCreate, db: Session = Depends(get_db)):
     # Only check for duplicate serial if one is provided
     if sensor.serial_number:
@@ -61,7 +61,7 @@ def create_sensor(sensor: schemas.SensorCreate, db: Session = Depends(get_db)):
     return crud.create_sensor(db=db, sensor=sensor)
 
 
-@router.put("/{sensor_id}", response_model=schemas.Sensor)
+@router.put("/{sensor_id}", response_model=schemas.SensorResponse)
 def update_sensor(
     sensor_id: str,
     sensor_update: schemas.SensorUpdate,
@@ -73,7 +73,7 @@ def update_sensor(
     return db_sensor
 
 
-@router.patch("/{sensor_id}", response_model=schemas.Sensor)
+@router.patch("/{sensor_id}", response_model=schemas.SensorResponse)
 def partial_update_sensor(
     sensor_id: str,
     sensor_update: schemas.SensorUpdate,

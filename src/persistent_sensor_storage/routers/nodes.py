@@ -8,7 +8,7 @@ from ..dependencies import get_db
 router = APIRouter(prefix="/nodes", tags=["nodes"])
 
 
-@router.get("/", response_model=List[schemas.NodeBasic])
+@router.get("/", response_model=List[schemas.NodeResponse])
 def read_nodes(
     serial_number: Optional[str] = Query(None),
     firmware_version: Optional[str] = Query(None),
@@ -26,7 +26,7 @@ def read_nodes(
     return nodes
 
 
-@router.get("/{node_id}", response_model=schemas.NodeBasic)
+@router.get("/{node_id}", response_model=schemas.NodeResponse)
 def read_node(node_id: str, db: Session = Depends(get_db)):
     node = crud.get_node(db, node_id)
     if node is None:
@@ -34,7 +34,7 @@ def read_node(node_id: str, db: Session = Depends(get_db)):
     return node
 
 
-@router.post("/", response_model=schemas.NodeBasic, status_code=201)
+@router.post("/", response_model=schemas.NodeResponse, status_code=201)
 def create_node(node: schemas.NodeCreate, db: Session = Depends(get_db)):
     # Only check for duplicate serial if one is provided
     if node.serial_number:
@@ -57,7 +57,7 @@ def create_node(node: schemas.NodeCreate, db: Session = Depends(get_db)):
     return crud.create_node(db=db, node=node)
 
 
-@router.put("/{node_id}", response_model=schemas.NodeBasic)
+@router.put("/{node_id}", response_model=schemas.NodeResponse)
 def update_node(
     node_id: str,
     node_update: schemas.NodeUpdate,
@@ -70,7 +70,7 @@ def update_node(
     return db_node
 
 
-@router.patch("/{node_id}", response_model=schemas.NodeBasic)
+@router.patch("/{node_id}", response_model=schemas.NodeResponse)
 def partial_update_node(
     node_id: str,
     node_update: schemas.NodeUpdate,
@@ -91,7 +91,7 @@ def read_node_with_sensors(node_id: str, db: Session = Depends(get_db)):
     return node
 
 
-@router.post("/{node_id}/sensors", response_model=schemas.Sensor)
+@router.post("/{node_id}/sensors", response_model=schemas.SensorResponse)
 def attach_sensor(
     node_id: str,
     sensor_request: schemas.SensorAttachRequest,

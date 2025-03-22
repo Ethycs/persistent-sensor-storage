@@ -68,6 +68,7 @@ persistent_sensor_storage/
 │           ├── nodes.py         # API endpoints for node resource
 │           └── sensors.py       # API endpoints for sensor resource
 ├── tests/
+|   ├── conftest.py              # Tests the configuration of the database
 │   ├── test_main.py             # Basic API tests (e.g., health check)
 │   ├── test_nodes.py            # Tests for node endpoints
 │   └── test_sensors.py          # Tests for sensor endpoints

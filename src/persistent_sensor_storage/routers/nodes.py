@@ -12,13 +12,13 @@ router = APIRouter(prefix="/nodes", tags=["nodes"])
 def read_nodes(
     serial_number: Optional[str] = Query(None),
     firmware_version: Optional[str] = Query(None),
-    skip: int = 0,
+    offset: int = 0,
     limit: Optional[int] = Query(None),
     db: Session = Depends(get_db)
 ):
     nodes = crud.get_nodes(
         db,
-        skip=skip,
+        offset=offset,
         limit=limit,
         serial_number=serial_number,
         firmware_version=firmware_version
@@ -81,7 +81,23 @@ def read_node_with_sensors(node_id: str, db: Session = Depends(get_db)):
     node = crud.get_node(db, node_id)
     if node is None:
         raise HTTPException(status_code=404, detail="Node not found")
-    return node
+    
+    # Convert each sensor to a SensorResponse
+    sensors = [
+        schemas.SensorResponse(
+            **sensor.__dict__,
+            node_id=node_id
+        )
+        for sensor in node.sensors
+    ]
+    
+    # Return node with sensors list
+    return schemas.Node(
+        id=node.id,
+        serial_number=node.serial_number,
+        firmware_version=node.firmware_version,
+        sensors=sensors
+    )
 
 
 @router.post("/{node_id}/sensors", response_model=schemas.SensorResponse)
@@ -90,12 +106,12 @@ def attach_sensor(
     sensor_request: schemas.SensorAttachRequest,
     db: Session = Depends(get_db)
 ):
-    sensor = crud.attach_sensor_to_node(
+    result = crud.attach_sensor_to_node(
         db, node_id, sensor_request.sensor_id
     )
-    if not sensor:
+    if not result:
         raise HTTPException(
             status_code=404,
             detail="Node or Sensor not found"
         )
-    return sensor
+    return result

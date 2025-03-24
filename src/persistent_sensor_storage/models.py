@@ -13,13 +13,29 @@ class NodeSensorAssociation(Base):
         nullable=False,
         default=lambda: str(uuid.uuid4())
     )
-    node_id = Column(String, ForeignKey('nodes.id'), nullable=False)
-    sensor_id = Column(String, ForeignKey('sensors.id'), nullable=False)
+    node_id = Column(
+        String,
+        ForeignKey('nodes.id'),
+        nullable=False
+    )
+    sensor_id = Column(
+        String,
+        ForeignKey('sensors.id'),
+        nullable=False
+    )
     status = Column(String)
 
     # Define relationships
-    node = relationship("Node", back_populates="associations")
-    sensor = relationship("Sensor", back_populates="associations")
+    node = relationship(
+        "Node",
+        back_populates="associations",
+        overlaps="sensors"
+    )
+    sensor = relationship(
+        "Sensor",
+        back_populates="associations",
+        overlaps="nodes"
+    )
 
 
 class Node(Base):
@@ -34,13 +50,14 @@ class Node(Base):
     serial_number = Column(String, unique=True, index=True, nullable=True)
     firmware_version = Column(String, nullable=False)
 
-    # One-to-many relationship to NodeSensorAssociation
-    associations = relationship("NodeSensorAssociation", back_populates="node")
-
-    # Many-to-many relationship using the rich association table
+    associations = relationship(
+        "NodeSensorAssociation",
+        back_populates="node",
+        overlaps="sensors"
+    )
     sensors = relationship(
-        "Sensor", 
-        secondary=NodeSensorAssociation.__table__, 
+        "Sensor",
+        secondary="node_sensor_association",
         back_populates="nodes",
         overlaps="associations,node"
     )
@@ -59,19 +76,14 @@ class Sensor(Base):
     manufacturer = Column(String, nullable=False)
     model = Column(String, nullable=False)
     modality = Column(String, nullable=False)
-    node_id = Column(String, ForeignKey('nodes.id'), nullable=True)
-
-    # One-to-many relationship to NodeSensorAssociation
     associations = relationship(
-        "NodeSensorAssociation", 
+        "NodeSensorAssociation",
         back_populates="sensor",
-        overlaps="sensors"
+        overlaps="nodes"
     )
-
-    # Define relationship to nodes through the association table
     nodes = relationship(
-        "Node", 
-        secondary=NodeSensorAssociation.__table__, 
+        "Node",
+        secondary="node_sensor_association",
         back_populates="sensors",
-        overlaps="associations,node"
+        overlaps="associations,sensor"
     )

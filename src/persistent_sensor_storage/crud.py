@@ -24,14 +24,12 @@ def get_node_by_serial(db: Session, serial_number: str):
 
 def get_nodes(
     db: Session,
-    skip: int = 0,  # Keep skip for backward compatibility
     offset: int = 0,
     limit: Optional[int] = None,
     serial_number: str = None,
     firmware_version: str = None
 ):
-    # Use offset if provided, otherwise use skip
-    actual_offset = offset or skip
+    actual_offset = offset
     query = db.query(models.Node)
     if serial_number:
         query = query.filter(models.Node.serial_number == serial_number)
@@ -70,18 +68,44 @@ def update_node(db: Session, node_id: str, node_update: schemas.NodeUpdate):
 
 
 def get_sensor(db: Session, sensor_id: str):
-    return (
+    result = (
         db.query(models.Sensor)
+        .outerjoin(models.NodeSensorAssociation)
+        .with_entities(
+            models.Sensor,
+            models.NodeSensorAssociation.node_id
+        )
         .filter(models.Sensor.id == sensor_id)
         .first()
+    )
+    if not result:
+        return None
+    
+    sensor, node_id = result
+    return schemas.SensorResponse(
+        **sensor.__dict__,
+        node_id=node_id
     )
 
 
 def get_sensor_by_serial(db: Session, serial_number: str):
-    return (
+    result = (
         db.query(models.Sensor)
+        .outerjoin(models.NodeSensorAssociation)
+        .with_entities(
+            models.Sensor,
+            models.NodeSensorAssociation.node_id
+        )
         .filter(models.Sensor.serial_number == serial_number)
         .first()
+    )
+    if not result:
+        return None
+    
+    sensor, node_id = result
+    return schemas.SensorResponse(
+        **sensor.__dict__,
+        node_id=node_id
     )
 
 
@@ -94,18 +118,37 @@ def get_sensors(
     modality: str = None,
     node_id: str = None
 ):
-    query = db.query(models.Sensor)
+    query = (
+        db.query(models.Sensor)
+        .outerjoin(models.NodeSensorAssociation)
+        .with_entities(
+            models.Sensor,
+            models.NodeSensorAssociation.node_id
+        )
+    )
+    
+    # Apply filters
     if manufacturer:
         query = query.filter(models.Sensor.manufacturer == manufacturer)
     if model:
         query = query.filter(models.Sensor.model == model)
     if modality:
         query = query.filter(models.Sensor.modality == modality)
-    if node_id is not None:
-        query = query.filter(models.Sensor.node_id == node_id)
+    if node_id:
+        query = query.filter(models.NodeSensorAssociation.node_id == node_id)
+    
+    # Apply pagination
     if limit is not None:
         query = query.limit(limit)
-    return query.offset(offset).all()
+    
+    results = query.offset(offset).all()
+    return [
+        schemas.SensorResponse(
+            **sensor.__dict__,
+            node_id=node_id
+        )
+        for sensor, node_id in results
+    ]
 
 
 def create_sensor(db: Session, sensor: schemas.SensorCreate):
@@ -118,7 +161,11 @@ def create_sensor(db: Session, sensor: schemas.SensorCreate):
     db.add(db_sensor)
     db.commit()
     db.refresh(db_sensor)
-    return db_sensor
+    
+    return schemas.SensorResponse(
+        **db_sensor.__dict__,
+        node_id=None
+    )
 
 
 def update_sensor(
@@ -126,25 +173,41 @@ def update_sensor(
     sensor_id: str,
     sensor_update: schemas.SensorUpdate
 ):
-    db_sensor = get_sensor(db, sensor_id)
-    if not db_sensor:
+    result = (
+        db.query(models.Sensor)
+        .outerjoin(models.NodeSensorAssociation)
+        .with_entities(
+            models.Sensor,
+            models.NodeSensorAssociation.node_id
+        )
+        .filter(models.Sensor.id == sensor_id)
+        .first()
+    )
+    if not result:
         return None
+    
+    sensor, node_id = result
     update_data = sensor_update.model_dump(exclude_unset=True)
     for key, value in update_data.items():
-        setattr(db_sensor, key, value)
+        setattr(sensor, key, value)
     db.commit()
-    db.refresh(db_sensor)
-    return db_sensor
+    db.refresh(sensor)
+    
+    return schemas.SensorResponse(
+        **sensor.__dict__,
+        node_id=node_id
+    )
 
 
 def attach_sensor_to_node(db: Session, node_id: str, sensor_id: str):
     db_node = get_node(db, node_id)
-    db_sensor = get_sensor(db, sensor_id)
+    db_sensor = (
+        db.query(models.Sensor)
+        .filter(models.Sensor.id == sensor_id)
+        .first()
+    )
     if not db_node or not db_sensor:
         return None
-    
-    # Set the node_id on the sensor
-    db_sensor.node_id = node_id
     
     # Create association with UUID
     association = models.NodeSensorAssociation(
@@ -156,29 +219,9 @@ def attach_sensor_to_node(db: Session, node_id: str, sensor_id: str):
     # Add association and commit
     db.add(association)
     db.commit()
+    db.refresh(db_sensor)
     
-    # Refresh both objects to ensure relationships are loaded
-    db.refresh(db_node)
-    db.refresh(db_sensor)
-    return db_sensor
-
-
-def assign_sensor_to_node(db: Session, sensor_id: str, node_id: str):
-    db_sensor = get_sensor(db, sensor_id=sensor_id)
-    if db_sensor is None:
-        return None
-
-    db_node = get_node(db, node_id=node_id)
-    if db_node is None:
-        return None
-
-    # Create association with UUID
-    association = models.NodeSensorAssociation(
-        id=str(uuid.uuid4()),
-        node_id=node_id,
-        sensor_id=sensor_id
+    return schemas.SensorResponse(
+        **db_sensor.__dict__,
+        node_id=node_id
     )
-    db.add(association)
-    db.commit()
-    db.refresh(db_sensor)
-    return db_sensor

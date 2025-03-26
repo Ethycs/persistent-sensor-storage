@@ -34,7 +34,7 @@ docker compose -f docker/docker-compose.yml down
 
 ## Run locally
 1. Running the API outside of the container
-With your environment set up, you can run the FastAPI application using Pixi. For example:
+With your environment set up by running `pixi install` in the repository root, you can run the FastAPI application using Pixi. For example:
 
 ```bash
 pixi run uvicorn src.persistent_sensor_storage.main:app --host 0.0.0.0 --port 8000

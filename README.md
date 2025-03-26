@@ -34,6 +34,7 @@ docker compose -f docker/docker-compose.yml down
 
 ## Run locally
 1. Running the API outside of the container
+
 With your environment set up by running `pixi install` in the repository root, you can run the FastAPI application using Pixi. For example:
 
 ```bash

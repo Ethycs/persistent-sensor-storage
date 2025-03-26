@@ -19,7 +19,7 @@ Git – To clone and manage the source code.
 
 ## Docker Deployment
 If you prefer a containerized setup, you can use Docker and Docker Compose:
-
+It is recommended to have python >= 3.11 
 Build and start the containers:
 
 ```bash
